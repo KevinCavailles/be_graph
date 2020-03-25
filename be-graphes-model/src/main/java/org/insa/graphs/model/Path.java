@@ -34,21 +34,7 @@ public class Path {
             throws IllegalArgumentException {
     	
         Arc currentArc = null;
-        
-        for(int i=0; i<nodes.size()-1;i++) {
-	    	for(Arc a : nodes.get(i).getSuccessors()) {
-	    		if(a.getDestination().equals(nodes.get(i+1))  ) {
-	    			currentArc = a;	
-	    		}
-	    	}
-	    	if(currentArc == null) {
-	    		throw new IllegalArgumentException();
-	    	}	
-	    	currentArc = null;
-        }
-    	
-        
-    	List<Arc> arcs = new ArrayList<Arc>();
+        List<Arc> arcs = new ArrayList<Arc>();
         double travelTime = 9999;
         
         if(nodes.size() == 0) {
@@ -58,7 +44,7 @@ public class Path {
         	return new Path(graph, nodes.get(0) );
         }
         
-    	for(int i=0; i<nodes.size()-1;i++) {
+        for(int i=0; i<nodes.size()-1;i++) {
 	    	for(Arc a : nodes.get(i).getSuccessors()) {
 	    		if(a.getMinimumTravelTime() < travelTime 
 	    				&& a.getDestination().equals(nodes.get(i+1))  ) {
@@ -66,9 +52,13 @@ public class Path {
 	    			travelTime = a.getMinimumTravelTime();
 	    		}
 	    	}
+	    	if(currentArc == null) {
+	    		throw new IllegalArgumentException();
+	    	}	
 	    	arcs.add(currentArc);
 	    	travelTime = 9999;
-    	}
+	    	currentArc = null;
+        }
           
         return new Path(graph, arcs);
     }
@@ -89,21 +79,6 @@ public class Path {
             throws IllegalArgumentException {
     	
         Arc currentArc = null;
-        
-        for(int i=0; i<nodes.size()-1;i++) {
-	    	for(Arc a : nodes.get(i).getSuccessors()) {
-	    		if(a.getDestination().equals(nodes.get(i+1))  ) {
-	    			currentArc = a;	
-	    		}
-	    		
-	    	}
-	    	if(currentArc == null) {
-	    		throw new IllegalArgumentException();
-	    	}	
-	    	currentArc = null;
-        }
-        
-        
         List<Arc> arcs = new ArrayList<Arc>();
         float distanceMin = 9999;
         
@@ -113,17 +88,23 @@ public class Path {
         if(nodes.size() == 1) {
         	return new Path(graph, nodes.get(0) );
         }
-    	for(int i=0; i<nodes.size()-1;i++) {
+        
+        for(int i=0; i<nodes.size()-1;i++) {
 	    	for(Arc a : nodes.get(i).getSuccessors()) {
 	    		if(a.getLength() < distanceMin 
 	    				&& a.getDestination().equals(nodes.get(i+1))  ) {
-	    			currentArc = a;
+	    			currentArc = a;	
 	    			distanceMin = a.getLength();
-	    		}
+	    		}	
 	    	}
+	    	if(currentArc == null) {
+	    		throw new IllegalArgumentException();
+	    	}	
 	    	arcs.add(currentArc);
 	    	distanceMin = 9999;
-    	}
+	    	currentArc = null;
+        }
+        
         return new Path(graph, arcs);
     }
 
