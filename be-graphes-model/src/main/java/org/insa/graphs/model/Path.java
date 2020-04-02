@@ -32,11 +32,7 @@ public class Path {
      */
     public static Path createFastestPathFromNodes(Graph graph, List<Node> nodes)
             throws IllegalArgumentException {
-    	
-        Arc currentArc = null;
-        List<Arc> arcs = new ArrayList<Arc>();
-        double travelTime = 9999;
-        
+    	    
         if(nodes.size() == 0) {
         	return new Path(graph);
         }
@@ -44,6 +40,11 @@ public class Path {
         	return new Path(graph, nodes.get(0) );
         }
         
+        Arc currentArc = null;
+        List<Arc> arcs = new ArrayList<Arc>();
+        double travelTime = 9999;
+        
+        //Get the arc with the minimum travel time for each node
         for(int i=0; i<nodes.size()-1;i++) {
 	    	for(Arc a : nodes.get(i).getSuccessors()) {
 	    		if(a.getMinimumTravelTime() < travelTime 
@@ -52,6 +53,7 @@ public class Path {
 	    			travelTime = a.getMinimumTravelTime();
 	    		}
 	    	}
+	    	//raise an exception if two consecutive arcs are not linked 
 	    	if(currentArc == null) {
 	    		throw new IllegalArgumentException();
 	    	}	
@@ -78,9 +80,7 @@ public class Path {
     public static Path createShortestPathFromNodes(Graph graph, List<Node> nodes)
             throws IllegalArgumentException {
     	
-        Arc currentArc = null;
-        List<Arc> arcs = new ArrayList<Arc>();
-        float distanceMin = 9999;
+       
         
         if(nodes.size() == 0) {
         	return new Path(graph);
@@ -89,6 +89,11 @@ public class Path {
         	return new Path(graph, nodes.get(0) );
         }
         
+        Arc currentArc = null;
+        List<Arc> arcs = new ArrayList<Arc>();
+        float distanceMin = 9999;
+        
+        //Get the arc with the minimal distance for each node
         for(int i=0; i<nodes.size()-1;i++) {
 	    	for(Arc a : nodes.get(i).getSuccessors()) {
 	    		if(a.getLength() < distanceMin 
@@ -97,6 +102,7 @@ public class Path {
 	    			distanceMin = a.getLength();
 	    		}	
 	    	}
+	    	//raise an exception if two consecutive arcs are not linked 
 	    	if(currentArc == null) {
 	    		throw new IllegalArgumentException();
 	    	}	

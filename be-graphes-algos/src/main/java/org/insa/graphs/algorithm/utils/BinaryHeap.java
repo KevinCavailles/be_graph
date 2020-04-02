@@ -1,6 +1,10 @@
 package org.insa.graphs.algorithm.utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Implements a binary heap containing elements of type E.
@@ -11,6 +15,9 @@ import java.util.ArrayList;
  * @author Mark Allen Weiss
  * @author DLB
  */
+
+
+
 public class BinaryHeap<E extends Comparable<E>> implements PriorityQueue<E> {
 
     // Number of elements in heap.
@@ -50,6 +57,7 @@ public class BinaryHeap<E extends Comparable<E>> implements PriorityQueue<E> {
         else {
             this.array.set(index, value);
         }
+       
     }
 
     /**
@@ -136,13 +144,20 @@ public class BinaryHeap<E extends Comparable<E>> implements PriorityQueue<E> {
     }
 
     @Override
+    /**
+     * Remove the element x from the array if it exists
+     * Raise ElementNotFoundException otherwise
+     */
     public void remove(E x) throws ElementNotFoundException {
+    	
+    	
     	if(this.isEmpty()){
         	throw new ElementNotFoundException(x);
         }
         
         int index = -1;
         
+        //Iterate over the array and check if the x exists
         for(int i=0; i<this.currentSize;i++) {
         	if(this.array.get(i).equals(x)) {
         		index = i;
@@ -154,8 +169,10 @@ public class BinaryHeap<E extends Comparable<E>> implements PriorityQueue<E> {
         	throw new ElementNotFoundException(x);
         }
     	
+    	//If it exists, it is replaced by the "last" element
         E lastItem = this.array.get(--this.currentSize);
         this.arraySet(index, lastItem);
+        //The switched element is then sorted
         this.percolateDown(index);
         this.percolateUp(index);
         

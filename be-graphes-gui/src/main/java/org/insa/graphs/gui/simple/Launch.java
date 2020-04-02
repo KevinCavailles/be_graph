@@ -50,28 +50,38 @@ public class Launch {
         final String mapName = "/Users/Kevin/Desktop/programmation/java_files/Maps/europe/france/insa.mapgr";
         final String pathName = "/Users/Kevin/Desktop/programmation/java_files/Paths/path_fr31insa_rangueil_insa.path";
 
-        // Create a graph reader.
-        final GraphReader reader = new BinaryGraphReader(
-                new DataInputStream(new BufferedInputStream(new FileInputStream(mapName))));
-
         // TODO: Read the graph.
-        final Graph graph = reader.read();
+        final Graph graph; 
 
         // Create the drawing:
-        final Drawing drawing = createDrawing();
+        final Drawing drawing;
 
-        // TODO: Draw the graph on the drawing.
-        drawing.drawGraph(graph);
+
+        try (GraphReader reader = new BinaryGraphReader(new DataInputStream(
+                new BufferedInputStream(new FileInputStream(mapName))))) {
+
+            // TODO: Read the graph.
+            graph = reader.read();
+
+            // Create the drawing:
+            drawing = createDrawing();
+
+            // TODO: Draw the graph on the drawing.
+            drawing.drawGraph(graph);
+        }
 
         // TODO: Create a PathReader.
-        final PathReader pathReader = new BinaryPathReader(
-        		new DataInputStream( new BufferedInputStream(new FileInputStream(pathName))));
+        try (PathReader pathReader = new BinaryPathReader(
+        		new DataInputStream( new BufferedInputStream(new FileInputStream(pathName))))) {
 
-        // TODO: Read the path.
-        final Path path = pathReader.readPath(graph);
+        	   // TODO: Read the path.
+            final Path path = pathReader.readPath(graph);
 
-        // TODO: Draw the path.
-        drawing.drawPath(path);
+            // TODO: Draw the path.
+            drawing.drawPath(path);
+
+        }
     }
+      
 
 }
