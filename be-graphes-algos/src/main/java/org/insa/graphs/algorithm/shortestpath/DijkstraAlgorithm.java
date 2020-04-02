@@ -43,12 +43,15 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 		Arc[] predecessorArcs = new Arc[nbNodes];
 
 		Label current, next;
+	
 
-		// While the heap has elements
-		while (!labelsHeap.isEmpty()) {
+		// While the heap has elements and the destination has not been reached and marked
+		while (!labelsHeap.isEmpty() 
+				&& (labelsList[data.getDestination().getId()] == null || !labelsList[data.getDestination().getId()].isMarked() )) {
 			
 			// Remove the min 
 			current = labelsHeap.findMin();
+//System.out.println("cout  :"+current.getCost());
 			try {
 				labelsHeap.remove(current);
 			} catch (Exception e) {
@@ -63,6 +66,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 					continue;
 				}
 
+//System.out.println("origine : "+arc.getOrigin().getId()+" destination : "+ arc.getDestination().getId());
 				next = labelsList[arc.getDestination().getId()];
 			
 				//If the destination of an arc does not exist or is not marked
@@ -76,18 +80,18 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 					
 					labelsList[arc.getDestination().getId()] = next;
 					labelsHeap.insert(next);
-					notifyNodeReached(arc.getDestination());
+					
 				
 				}else{
 					if (next.getCost() > current.getCost() + data.getCost(arc)) {
 						next.setCost(current.getCost() + data.getCost(arc));
 						next.setFather(arc);
-						notifyNodeReached(arc.getDestination());
 					}
 				}
-				
+				notifyNodeReached(arc.getDestination());
 
 			}
+//System.out.println("");
 		}
 
 		
