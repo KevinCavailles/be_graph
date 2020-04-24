@@ -204,17 +204,44 @@ public class BinaryHeap<E extends Comparable<E>> implements PriorityQueue<E> {
     }
 
     
-//    public boolean isValid() {
-//    	
-//    	for(int i=1; i<this.size(); i++) {
-//    		E current = this.array.get(i);
-//    		E parent = this.array.get(this.indexParent(i));
-//    		if( current.compareTo(parent) < 0) {
-//    			return false;
-//    		}	
-//    	}
-//    	return true;
-//    }
+    //Met à jour l'arbre à partir à partir d'un élément dont le coût a changé
+    public void miseAJour(E x) throws ElementNotFoundException {
+    	
+    	if(this.isEmpty() || x == null){
+        	throw new ElementNotFoundException(x);
+        }
+        
+        int index = -1;
+//        Iterate over the array and check if the x exists
+        for(int i=0; i<this.currentSize;i++) {
+        	if(this.array.get(i).equals(x)) {
+        		index = i;
+        		break;
+        	}
+        }
+        
+    	if(index == -1) {
+        	throw new ElementNotFoundException(x);
+        }
+    	
+
+        this.percolateDown(index);
+        this.percolateUp(index);
+        
+    }
+    
+    public boolean isValid() {
+    	E current;
+    	E parent;
+    	for(int i=1; i<this.currentSize;  i++) {
+    		current = this.array.get(i);
+    		parent = this.array.get(this.indexParent(i));
+    		if( current.compareTo(parent) < 0) {
+    			return false;
+    		}	
+    	}
+    	return true;
+    }
     
     /**
      * Creates a multi-lines string representing a sorted view of this binary heap.

@@ -27,104 +27,112 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 		final int nbNodes = graph.size();
 
 		// Create the heap and a static array to store the labels
-		org.insa.graphs.algorithm.utils.BinaryHeap<Label> labelsHeap = new BinaryHeap<>();
-		Label labelsList[] = new Label[nbNodes];
-		Arrays.fill(labelsList, null);
-
-		//Put the origin in the heap and in the list
-		Node origin = data.getOrigin();
-		labelsList[origin.getId()] = new Label(origin, 0, null);
-		labelsHeap.insert(labelsList[origin.getId()]);
-
-		// Notify observers about the first event (origin processed).
-		notifyOriginProcessed(data.getOrigin());
-
-		// Initialize array of predecessors.
-		Arc[] predecessorArcs = new Arc[nbNodes];
-
-		Label current, next;
-	
-
-		// While the heap has elements and the destination has not been reached and marked
-		while (!labelsHeap.isEmpty() 
-				&& (labelsList[data.getDestination().getId()] == null || !labelsList[data.getDestination().getId()].isMarked() )) {
+		BinaryHeap<Label> tas = new BinaryHeap<Label>();
+		Label labels[] = new Label[graph.getNodes().size()];
+		Arrays.fill(labels, null);
+		
+		Label origine = new Label(data.getOrigin(), 0 , null);
+		labels[data.getOrigin().getId()] = origine;
+		tas.insert(origine);
+		
+		Label minimum, successeur;
+		
+		int cptErreurs = 0;
+		
+		//Tant que le tas n'est pas vide et que la destination n'est pas atteinte ou n'est pas marquée
+		while(!tas.isEmpty() && 
+			(labels[data.getDestination().getId()] == null || !labels[data.getDestination().getId()].isMarked() ) ) 
+		{
 			
-//			if(!labelsHeap.isValid()) {
-//				System.out.println("arbre non valide");
-//			}
+			if(!tas.isValid()) {
+				cptErreurs++;
+			}
 			
-			// Remove the min 
-			current = labelsHeap.findMin();
-//System.out.println("cout  :"+current.getCost());
+			//Récupère le minimum (= racine)
+			minimum = tas.findMin();
+			
+			if(minimum.getCurrent() == data.getOrigin()) {
+				notifyOriginProcessed(data.getOrigin());
+			}
+			
+			if(minimum.getCurrent() == data.getDestination()) {
+				notifyDestinationReached(data.getDestination());
+			}
+			
+			//Supprime le minimum
 			try {
-				labelsHeap.remove(current);
-			} catch (Exception e) {
+				tas.remove(minimum);
+			}catch(Exception e) {
 				System.out.println("fatal error");
 			}
 			
-			current.setMark();
-			notifyNodeMarked(current.getCurrent());
-
-			// Iterate over the arcs of the removed element
-			for (Arc arc : graph.get(current.getCurrent().getId()).getSuccessors()) {
-				if (!data.isAllowed(arc)) {
-					continue;
-				}
-
-//System.out.println("origine : "+arc.getOrigin().getId()+" destination : "+ arc.getDestination().getId());
-				next = labelsList[arc.getDestination().getId()];
+			minimum.setMark();
+			notifyNodeMarked(minimum.getCurrent());
 			
-				//If the destination of an arc does not exist in the list or is not marked
-				if ( next != null && next.isMarked()) {
+//			System.out.println(minimum.getCurrent().getNumberOfSuccessors());
+			
+			//Pour chaque successeurs du noeud minimum
+			for(Arc arc : minimum.getCurrent().getSuccessors()) {
+				
+				if(!data.isAllowed(arc)) {
 					continue;
 				}
 				
-				// Either create it or check if the associated cost can be reduced
-				if (next == null) {
-					next = new Label(arc.getDestination(), current.getCost() + data.getCost(arc), arc);
-					
-					labelsList[arc.getDestination().getId()] = next;
-					labelsHeap.insert(next);
-					
 				
-				}else{
-					if (next.getCost() > current.getCost() + data.getCost(arc)) {
-						next.setCost(current.getCost() + data.getCost(arc));
-						next.setFather(arc);
+				successeur = labels[arc.getDestination().getId()];
+				
+				//Si le successeur n'existe pas, on le crée
+				if(successeur == null) {
+					successeur = new Label(arc.getDestination(), minimum.getCost() + data.getCost(arc), arc);
+					labels[arc.getDestination().getId()] = successeur;
+					tas.insert(successeur);
+					
+					notifyNodeReached(successeur.getCurrent());
+				
+				//Sinon on regarde si on peut optimiser le coût du successeur
+				}else {
+					if(successeur.getCost() > minimum.getCost() + data.getCost(arc)) {
+						successeur.setCost(minimum.getCost() + data.getCost(arc));
+						successeur.setFather(arc);
+						
+						try {
+							tas.miseAJour(successeur);
+						}catch(Exception e) {
+							System.out.println("fatal error");
+						}
 					}
+					
 				}
 				
-				notifyNodeReached(arc.getDestination());
-
 			}
-//System.out.println("");
 		}
-
 		
+
 		ShortestPathSolution solution = null;
-
-		//Check if the destination has been reached from the source
-		if (labelsList[data.getDestination().getId()] == null) {
-			solution = new ShortestPathSolution(data, Status.INFEASIBLE);
-		} else {
-			// The destination has been found, notify the observers.
-			notifyDestinationReached(data.getDestination());
-
-			// Create the path from the array of predecessors...
-			ArrayList<Arc> arcs = new ArrayList<>();
-			Arc arc = labelsList[data.getDestination().getId()].getFather();
-			while (arc != null) {
-				arcs.add(arc);
-				arc = labelsList[arc.getOrigin().getId()].getFather();
+		
+		//Regarde si la destination a été atteinte et marquée
+		if(labels[data.getDestination().getId()] != null && labels[data.getDestination().getId()].isMarked()) {
+			
+			//On récupère tous les arcs constituant le chemin
+			//en partant de la destination et en remontant jusqu'à l'origine
+			ArrayList<Arc> arcsSolution = new ArrayList<>();
+			Arc arc = labels[data.getDestination().getId()].getFather();
+			while(arc != null) {
+				arcsSolution.add(arc);
+				arc = labels[arc.getOrigin().getId()].getFather();
 			}
-
-			// Reverse the arcs' path...
-			Collections.reverse(arcs);
-
-			// Create the final solution.
-			solution = new ShortestPathSolution(data, Status.OPTIMAL, new Path(graph, arcs));
+			
+			Collections.reverse(arcsSolution);
+			
+			solution = new ShortestPathSolution(data, Status.OPTIMAL, new Path(graph, arcsSolution));
+		
+		//Sinon, il n'y a pas de solution
+		}else {
+		
+			solution = new ShortestPathSolution(data, Status.INFEASIBLE);
 		}
-
+			
+		System.out.println("nb erreurs  = "+cptErreurs);
 		return solution;
 	}
 
