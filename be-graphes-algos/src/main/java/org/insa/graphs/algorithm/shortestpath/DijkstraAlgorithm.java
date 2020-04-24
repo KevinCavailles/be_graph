@@ -27,14 +27,14 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 		final int nbNodes = graph.size();
 
 		// Create the heap and a static array to store the labels
-		org.insa.graphs.algorithm.utils.PriorityQueue<Label> labelsHeap = new BinaryHeap<>();
+		org.insa.graphs.algorithm.utils.BinaryHeap<Label> labelsHeap = new BinaryHeap<>();
 		Label labelsList[] = new Label[nbNodes];
 		Arrays.fill(labelsList, null);
 
-		//Put the origin in the heap
+		//Put the origin in the heap and in the list
 		Node origin = data.getOrigin();
-		labelsList[origin.getId()] = new Label(data.getOrigin(), 0, null);
-		labelsHeap.insert(new Label(origin, 0, null));
+		labelsList[origin.getId()] = new Label(origin, 0, null);
+		labelsHeap.insert(labelsList[origin.getId()]);
 
 		// Notify observers about the first event (origin processed).
 		notifyOriginProcessed(data.getOrigin());
@@ -49,6 +49,10 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 		while (!labelsHeap.isEmpty() 
 				&& (labelsList[data.getDestination().getId()] == null || !labelsList[data.getDestination().getId()].isMarked() )) {
 			
+//			if(!labelsHeap.isValid()) {
+//				System.out.println("arbre non valide");
+//			}
+			
 			// Remove the min 
 			current = labelsHeap.findMin();
 //System.out.println("cout  :"+current.getCost());
@@ -59,8 +63,9 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 			}
 			
 			current.setMark();
+			notifyNodeMarked(current.getCurrent());
 
-			// Iterate over the arc of the removed element
+			// Iterate over the arcs of the removed element
 			for (Arc arc : graph.get(current.getCurrent().getId()).getSuccessors()) {
 				if (!data.isAllowed(arc)) {
 					continue;
@@ -69,14 +74,14 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 //System.out.println("origine : "+arc.getOrigin().getId()+" destination : "+ arc.getDestination().getId());
 				next = labelsList[arc.getDestination().getId()];
 			
-				//If the destination of an arc does not exist or is not marked
+				//If the destination of an arc does not exist in the list or is not marked
 				if ( next != null && next.isMarked()) {
 					continue;
 				}
 				
 				// Either create it or check if the associated cost can be reduced
 				if (next == null) {
-					next = new Label(arc.getDestination(),current.getCost() + data.getCost(arc), arc);
+					next = new Label(arc.getDestination(), current.getCost() + data.getCost(arc), arc);
 					
 					labelsList[arc.getDestination().getId()] = next;
 					labelsHeap.insert(next);
@@ -88,6 +93,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 						next.setFather(arc);
 					}
 				}
+				
 				notifyNodeReached(arc.getDestination());
 
 			}
@@ -112,7 +118,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 				arc = labelsList[arc.getOrigin().getId()].getFather();
 			}
 
-			// Reverse the path...
+			// Reverse the arcs' path...
 			Collections.reverse(arcs);
 
 			// Create the final solution.
