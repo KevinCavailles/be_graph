@@ -499,6 +499,7 @@ public class MainWindow extends JFrame {
                 }
             }
         }
+        
 
         Runnable runnable = null;
 

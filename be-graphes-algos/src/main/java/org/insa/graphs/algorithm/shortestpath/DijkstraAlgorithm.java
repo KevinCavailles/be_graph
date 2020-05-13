@@ -31,7 +31,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 		Label labels[] = new Label[graph.getNodes().size()];
 		Arrays.fill(labels, null);
 		
-		Label origine = new Label(data.getOrigin(), 0 , null);
+		Label origine = createLabel(data, null, null);
 		labels[data.getOrigin().getId()] = origine;
 		tas.insert(origine);
 		
@@ -69,6 +69,9 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 			minimum.setMark();
 			notifyNodeMarked(minimum.getCurrent());
 			
+//			System.out.println(minimum.getTotalCost());
+			
+			
 //			System.out.println(minimum.getCurrent().getNumberOfSuccessors());
 			
 			//Pour chaque successeurs du noeud minimum
@@ -83,14 +86,14 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 				
 				//Si le successeur n'existe pas, on le crée
 				if(successeur == null) {
-					successeur = new Label(arc.getDestination(), minimum.getCost() + data.getCost(arc), arc);
+					successeur = this.createLabel(data, arc, minimum);
 					labels[arc.getDestination().getId()] = successeur;
 					tas.insert(successeur);
 					
 					notifyNodeReached(successeur.getCurrent());
 				
 				//Sinon on regarde si on peut optimiser le coût du successeur
-				}else {
+				}else{
 					if(successeur.getCost() > minimum.getCost() + data.getCost(arc)) {
 						successeur.setCost(minimum.getCost() + data.getCost(arc));
 						successeur.setFather(arc);
@@ -98,7 +101,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 						try {
 							tas.miseAJour(successeur);
 						}catch(Exception e) {
-							System.out.println("fatal error");
+							
 						}
 					}
 					
@@ -134,6 +137,15 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 			
 		System.out.println("nb erreurs  = "+cptErreurs);
 		return solution;
+	}
+	
+	protected Label createLabel(ShortestPathData data, Arc pere, Label noeudPrecedent) {
+		if(pere != null && noeudPrecedent != null) {
+			return new Label( pere.getDestination() , noeudPrecedent.getCost()+ data.getCost(pere), pere);
+		}else {
+			return new Label(data.getOrigin(), 0, null);
+		}
+		
 	}
 
 }

@@ -230,6 +230,7 @@ public class BinaryHeap<E extends Comparable<E>> implements PriorityQueue<E> {
         
     }
     
+    
     public boolean isValid() {
     	E current;
     	E parent;
