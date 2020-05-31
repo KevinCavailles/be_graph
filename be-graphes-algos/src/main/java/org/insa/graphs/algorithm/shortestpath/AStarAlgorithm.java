@@ -22,14 +22,7 @@ public class AStarAlgorithm extends DijkstraAlgorithm {
     
    @Override
     protected Label createLabel(ShortestPathData data, Arc pere, Label noeudPrecedent) {
-    	if(pere == null && noeudPrecedent == null) {
-    		return new LabelStar(data.getOrigin(),
-					0,
-					Point.distance(data.getOrigin().getPoint(), data.getDestination().getPoint() ) ,
-					null);
-    	}
-    	
-    	
+    
     	double coutEstime = 0;
     	
     	
@@ -67,8 +60,15 @@ public class AStarAlgorithm extends DijkstraAlgorithm {
 				noeudPrecedent.getCost() + data.getCost(pere),
 				coutEstime,
 				pere);
-    	
-		
-		
 	}
+   
+   @Override
+   protected Label createLabelOrigin(ShortestPathData data) {
+	  
+	   return new LabelStar(data.getOrigin(),
+				0,
+				Point.distance(data.getOrigin().getPoint(), data.getDestination().getPoint() ) ,
+				null);
+	   
+   }
 }

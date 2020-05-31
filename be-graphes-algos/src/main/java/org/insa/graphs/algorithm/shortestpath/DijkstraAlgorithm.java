@@ -31,7 +31,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 		Label labels[] = new Label[graph.getNodes().size()];
 		Arrays.fill(labels, null);
 		
-		Label origine = createLabel(data, null, null);
+		Label origine = createLabelOrigin(data);
 		labels[data.getOrigin().getId()] = origine;
 		tas.insert(origine);
 		
@@ -135,17 +135,16 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 			solution = new ShortestPathSolution(data, Status.INFEASIBLE);
 		}
 			
-		System.out.println("nb erreurs  = "+cptErreurs);
+//		System.out.println("nb erreurs  = "+cptErreurs);
 		return solution;
 	}
 	
 	protected Label createLabel(ShortestPathData data, Arc pere, Label noeudPrecedent) {
-		if(pere != null && noeudPrecedent != null) {
-			return new Label( pere.getDestination() , noeudPrecedent.getCost()+ data.getCost(pere), pere);
-		}else {
-			return new Label(data.getOrigin(), 0, null);
-		}
-		
+			return new Label( pere.getDestination() , noeudPrecedent.getCost()+ data.getCost(pere), pere);	
+	}
+	
+	protected Label createLabelOrigin(ShortestPathData data) {
+		return new Label(data.getOrigin(), 0, null);
 	}
 
 }

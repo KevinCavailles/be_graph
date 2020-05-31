@@ -32,7 +32,7 @@ public class BinaryHeap<E extends Comparable<E>> implements PriorityQueue<E> {
     public BinaryHeap() {
         this.currentSize = 0;
         this.array = new ArrayList<E>();
-//        this.indexArray = new Couple[70];
+
     }
 
     /**
@@ -163,7 +163,7 @@ public class BinaryHeap<E extends Comparable<E>> implements PriorityQueue<E> {
         }
         
         int index = -1;
-//        Iterate over the array and check if the x exists
+//       Iterate over the array and check if the x exists
         for(int i=0; i<this.currentSize;i++) {
         	if(this.array.get(i).equals(x)) {
         		index = i;
@@ -203,8 +203,30 @@ public class BinaryHeap<E extends Comparable<E>> implements PriorityQueue<E> {
         return minItem;
     }
 
+   
+    /**
+     * Check that the binary heap is valid
+     * 
+     * @return a boolean indicating whether the tree is valid
+     */
+    public boolean isValid() {
+    	E current;
+    	E parent;
+    	for(int i=1; i<this.currentSize;  i++) {
+    		current = this.array.get(i);
+    		parent = this.array.get(this.indexParent(i));
+    		if( current.compareTo(parent) < 0) {
+    			return false;
+    		}	
+    	}
+    	return true;
+    }
     
-    //Met à jour l'arbre à partir à partir d'un élément dont le coût a changé
+    
+    /**
+     * Update the element x in the heap if it exists
+     * Raise ElementNotFoundException otherwise
+     */
     public void miseAJour(E x) throws ElementNotFoundException {
     	
     	if(this.isEmpty() || x == null){
@@ -228,20 +250,6 @@ public class BinaryHeap<E extends Comparable<E>> implements PriorityQueue<E> {
         this.percolateDown(index);
         this.percolateUp(index);
         
-    }
-    
-    
-    public boolean isValid() {
-    	E current;
-    	E parent;
-    	for(int i=1; i<this.currentSize;  i++) {
-    		current = this.array.get(i);
-    		parent = this.array.get(this.indexParent(i));
-    		if( current.compareTo(parent) < 0) {
-    			return false;
-    		}	
-    	}
-    	return true;
     }
     
     /**

@@ -298,7 +298,11 @@ public class Path {
      *         kilometers-per-hour).
      */
     public double getTravelTime(double speed) {
-        return this.getLength()/(speed/3.6f);
+    	 float res = 0.0f;
+         for(Arc a : this.arcs) {
+         	res+= a.getTravelTime(speed);
+         }
+        return res;//this.getLength()/(speed/3.6f);
     }
 
     /**
